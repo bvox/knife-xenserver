@@ -143,21 +143,26 @@ class Chef
 
         puts "#{ui.color("Creating VM... ", :magenta)}"
         vm = connection.servers.create :name => config[:vm_name],
-                                  :template_name => config[:vm_template]
+                                       :template_name => config[:vm_template]
 
         puts "#{ui.color("VM Name", :cyan)}: #{vm.name}"
         puts "#{ui.color("VM Memory", :cyan)}: #{vm.memory_static_max.to_i.bytes.to.megabytes.round} MB"
-        return if config[:skip_bootstrap]
-
         # wait for it to be ready to do stuff
         print "\n#{ui.color("Waiting server... ", :magenta)}"
         timeout = 100
         found = connection.servers.all.find { |v| v.name == vm.name }
+        servers = connection.servers
         loop do 
           begin
+            vm.refresh
             if not vm.guest_metrics.nil? and not vm.guest_metrics.networks.empty?
+              networks = []
+              vm.guest_metrics.networks.each do |k,v|
+                networks << v
+              end
+              networks = networks.join(",")
               puts
-              puts "\n#{ui.color("VM IP Address: #{vm.guest_metrics.networks}", :cyan)}"
+              puts "\n#{ui.color("Seerver networks:", :cyan)} #{networks}"
               break
             end
           rescue Fog::Errors::Error
@@ -168,33 +173,35 @@ class Chef
             ui.error "\nTimeout trying to reach the VM. Couldn't find the IP address."
             exit 1
           end
-          sleep 1
-          found.refresh
         end
 
-        print "\n#{ui.color("Waiting for sshd... ", :magenta)}"
-        vm.guest_metrics.networks.each do |k,v|
-          print "\n#{ui.color("trying #{v}... ", :yellow)}"
-          print(".") until tcp_test_ssh(v) do
-            sleep @initial_sleep_delay ||= 10; puts(" done") 
-            @ssh_ip = v
+        if !config[:skip_bootstrap]
+          print "\n#{ui.color("Waiting for sshd... ", :magenta)}"
+          vm.guest_metrics.networks.each do |k,v|
+            print "\n#{ui.color("Trying to SSH to #{v}... ", :yellow)}"
+            print(".") until tcp_test_ssh(v) do
+              sleep @initial_sleep_delay ||= 10; puts(" done") 
+              @ssh_ip = v
+            end
+            break if @ssh_ip
           end
-          break if @ssh_ip
+
+          bootstrap_for_node(vm).run 
+          puts "\n"
+          puts "#{ui.color("Name", :cyan)}: #{vm.name}"
+          puts "#{ui.color("IP Address", :cyan)}: #{@ssh_ip}"
+          puts "#{ui.color("Environment", :cyan)}: #{config[:environment] || '_default'}"
+          puts "#{ui.color("Run List", :cyan)}: #{config[:run_list].join(', ')}"
+          puts "#{ui.color("Done!", :green)}"
+        else
+          ui.warn "Skipping bootstrapping as requested."
         end
 
-        bootstrap_for_node(vm).run 
-
-        puts "\n"
-        puts "#{ui.color("Name", :cyan)}: #{vm.name}"
-        puts "#{ui.color("IP Address", :cyan)}: #{@ssh_ip}"
-        puts "#{ui.color("Environment", :cyan)}: #{config[:environment] || '_default'}"
-        puts "#{ui.color("Run List", :cyan)}: #{config[:run_list].join(', ')}"
-        puts "#{ui.color("Done!", :green)}"
       end
 
       def bootstrap_for_node(vm)
         bootstrap = Chef::Knife::Bootstrap.new
-        bootstrap.name_args = [vm.public_ip_address]
+        bootstrap.name_args = [@ssh_ip]
         bootstrap.config[:run_list] = config[:run_list]
         bootstrap.config[:ssh_user] = config[:ssh_user] 
         bootstrap.config[:identity_file] = config[:identity_file]
