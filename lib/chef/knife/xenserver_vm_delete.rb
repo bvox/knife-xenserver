@@ -35,13 +35,13 @@ class Chef
         deleted = []
         connection.servers.each do |vm|
           @name_args.each do |vm_name|
-            if vm_name == vm.name
+            if (vm_name == vm.name) or (vm_name == vm.uuid)
               if config[:force_delete] =~ /(no|NO|false|FALSE)/
                 confirm("Do you really want to delete this virtual machine '#{vm.name}'")
               end
               vm.destroy
               deleted << vm_name
-              ui.info("Deleted virtual machine #{vm.name}")
+              ui.info("Deleted virtual machine #{vm.name} [uuid:#{vm.uuid}]")
             end
           end
         end

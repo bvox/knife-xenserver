@@ -41,7 +41,7 @@ class Chef
       
       option :vm_name,
         :long => "--vm-name NAME",
-        :description => "The Virtual Machine Template to use"
+        :description => "The Virtual Machine name"
       
       option :chef_node_name,
         :short => "-N NAME",
@@ -162,7 +162,7 @@ class Chef
               end
               networks = networks.join(",")
               puts
-              puts "\n#{ui.color("Seerver networks:", :cyan)} #{networks}"
+              puts "\n#{ui.color("Server networks:", :cyan)} #{networks}"
               break
             end
           rescue Fog::Errors::Error

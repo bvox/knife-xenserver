@@ -78,7 +78,7 @@ module Fog
         end
         
         def default_network
-          Fog::XenServer::Network.new( get_network( @defaults[:network] ) ) if @defaults[:network]
+          net = networks.find { |n| n.name == (@defaults[:network] || "Pool-wide network associated with eth0") }
         end
         
       end

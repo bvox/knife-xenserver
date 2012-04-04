@@ -2,6 +2,13 @@
 
 Provision virtual machines with Citrix XenServer and Opscode Chef.
 
+## Upgrading knife-xenserver
+
+When upgrading knife-xenserver, it's very important to remove older knife-xenserver versions
+
+    gem update knife-xenserver
+    gem clean knife-xenserver
+
 ## Usage
 
     knife xenserver --help

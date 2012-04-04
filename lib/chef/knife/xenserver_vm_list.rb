@@ -41,7 +41,7 @@ class Chef
               networks = "unknown"
             end
             mem = vm.memory_static_max.to_i.bytes.to.megabytes.round
-            t << [vm.name, mem, vm.power_state, vm.tools_installed?, networks]
+            t << ["#{vm.name}\n  #{ui.color('uuid: ', :yellow)}#{vm.uuid}", mem, vm.power_state, vm.tools_installed?, networks]
           end
         end
         puts vm_table
