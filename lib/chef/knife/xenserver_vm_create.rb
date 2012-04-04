@@ -159,7 +159,7 @@ class Chef
         puts "#{ui.color("VM Memory", :cyan)}: #{vm.memory_static_max.to_i.bytes.to.megabytes.round} MB"
         # wait for it to be ready to do stuff
         print "\n#{ui.color("Waiting server... ", :magenta)}"
-        timeout = 100
+        timeout = 180
         found = connection.servers.all.find { |v| v.name == vm.name }
         servers = connection.servers
         loop do 
@@ -178,9 +178,11 @@ class Chef
           rescue Fog::Errors::Error
             print "\r#{ui.color('Waiting a valid IP', :magenta)}..." + "." * (100 - timeout)
           end
+          sleep 1
           timeout -= 1
           if timeout == 0
-            ui.error "\nTimeout trying to reach the VM. Couldn't find the IP address."
+            puts
+            ui.error "Timeout trying to reach the VM. Couldn't find the IP address."
             exit 1
           end
         end
