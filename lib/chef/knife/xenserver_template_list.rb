@@ -35,15 +35,24 @@ class Chef
       def run
         $stdout.sync = true
         table = table do |t|
-          t.headings = %w{AVAILABLE_TEMPLATES}
+          t.headings = %w{NAME MEMORY GUEST_TOOLS NETWORKS}
           if config[:exclude_builtin]
-            connection.hosts.first.custom_templates.each do |tmpl|
-              t << [File.basename(tmpl.name)]
-            end
+            templates = connection.hosts.first.custom_templates
           else
-            connection.hosts.first.templates.each do |tmpl|
-              t << [File.basename(tmpl.name)]
+            templates = connection.hosts.first.templates
+          end
+          templates.each do |vm|
+            if vm.tools_installed?
+              networks = []
+              vm.guest_metrics.networks.each do |k,v|
+                networks << v
+              end
+              networks = networks.join(",")
+            else
+              networks = "unknown"
             end
+            mem = vm.memory_static_max.to_i.bytes.to.megabytes.round
+            t << ["#{vm.name}\n  #{ui.color('uuid: ', :yellow)}#{vm.uuid}", mem, vm.tools_installed?, networks]
           end
         end
         puts table
