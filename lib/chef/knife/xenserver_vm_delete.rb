@@ -41,7 +41,7 @@ class Chef
               end
               vm.destroy
               deleted << vm_name
-              ui.info("Deleted virtual machine #{vm.name} [uuid:#{vm.uuid}]")
+              ui.info("Deleted virtual machine #{vm.name} [uuid: #{vm.uuid}]")
             end
           end
         end

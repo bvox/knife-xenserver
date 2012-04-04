@@ -44,7 +44,7 @@ class Chef
             t << ["#{vm.name}\n  #{ui.color('uuid: ', :yellow)}#{vm.uuid}", mem, vm.power_state, vm.tools_installed?, networks]
           end
         end
-        puts vm_table
+        puts vm_table if connection.servers.size > 0
       end
     end
   end

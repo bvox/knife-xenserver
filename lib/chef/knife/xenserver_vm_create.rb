@@ -141,7 +141,18 @@ class Chef
           exit 1
         end
 
-        puts "#{ui.color("Creating VM... ", :magenta)}"
+        template = connection.servers.all(:include_templates => true,
+                                          :include_custom_templates => true).find do |s| 
+          (s.name == config[:vm_template]) or (s.uuid == config[:vm_template])
+        end
+
+        if template.nil?
+          ui.error "Template #{config[:vm_template]} not found."
+          exit 1
+        end
+
+        puts "#{ui.color("Creating VM #{config[:vm_name]}... ", :magenta)}"
+        puts "#{ui.color("Using template #{template.name} [uuid: #{template.uuid}]... ", :magenta)}"
         vm = connection.servers.create :name => config[:vm_name],
                                        :template_name => config[:vm_template]
 

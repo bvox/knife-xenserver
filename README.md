@@ -22,18 +22,18 @@ List all the VMs
                             --xenserver-password secret
 
 
-List all the templates
+List custom templates
 
     knife xenserver template list --xenserver-host fooserver \
                                   --xenserver-username root \
                                   --xenserver-password secret
 
-Include only custom templates
+Include built-in tempaltes too
 
     knife xenserver template list --xenserver-host fooserver \
                                   --xenserver-username root \
                                   --xenserver-password secret \
-                                  --exclude-builtin
+                                  --include-builtin
 
 ## Sample .chef/knife.rb config
 

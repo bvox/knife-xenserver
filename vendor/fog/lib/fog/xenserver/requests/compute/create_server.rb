@@ -10,15 +10,19 @@ module Fog
         end
         
         def create_server( name_label, template = nil, networks = [], extra_args = {})
-          template ||= default_template
-          
           if !networks.kind_of? Array
             raise "Invalid networks argument"
           end
 
           if template.kind_of? String
             template_string = template
-            template = servers.get get_vm_by_name(template_string)
+            # try template by UUID 
+            template = servers.all(:include_templates => true,
+                                   :include_custom_templates => true).find { |s| s.uuid == template_string }
+            if template.nil?
+              # Try with the template name just in case
+              template = servers.get get_vm_by_name(template_string)
+            end
           end
 
           if template.nil?

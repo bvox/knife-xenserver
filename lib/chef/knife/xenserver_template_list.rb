@@ -26,20 +26,22 @@ class Chef
 
       banner "knife xenserver template list"
 
-      option :exclude_builtin,
-        :long => "--exclude-builtin",
+      option :include_builtin,
+        :long => "--include-builtin",
         :description => "Exclude built-in templates from listing",
         :boolean => true,
         :proc => Proc.new { true }
 
       def run
         $stdout.sync = true
+        templates = connection.hosts.first.custom_templates || []
         table = table do |t|
           t.headings = %w{NAME MEMORY GUEST_TOOLS NETWORKS}
-          if config[:exclude_builtin]
-            templates = connection.hosts.first.custom_templates
-          else
-            templates = connection.hosts.first.templates
+          if templates.empty? and !config[:include_builtin]
+            ui.warn "No custom templates found. Use --include-builtin to list them all."
+          end
+          if config[:include_builtin]
+            templates += connection.hosts.first.templates
           end
           templates.each do |vm|
             if vm.tools_installed?
@@ -55,7 +57,7 @@ class Chef
             t << ["#{vm.name}\n  #{ui.color('uuid: ', :yellow)}#{vm.uuid}", mem, vm.tools_installed?, networks]
           end
         end
-        puts table
+        puts table if !templates.empty?
       end
 
     end
