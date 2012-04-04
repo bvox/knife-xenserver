@@ -28,20 +28,20 @@ class Chef
 
       option :include_builtin,
         :long => "--include-builtin",
-        :description => "Exclude built-in templates from listing",
+        :description => "Include built-in templates",
         :boolean => true,
         :proc => Proc.new { true }
 
       def run
         $stdout.sync = true
-        templates = connection.hosts.first.custom_templates || []
+        templates = connection.servers.custom_templates || []
         table = table do |t|
           t.headings = %w{NAME MEMORY GUEST_TOOLS NETWORKS}
           if templates.empty? and !config[:include_builtin]
             ui.warn "No custom templates found. Use --include-builtin to list them all."
           end
           if config[:include_builtin]
-            templates += connection.hosts.first.templates
+            templates += connection.servers.builtin_templates
           end
           templates.each do |vm|
             if vm.tools_installed?

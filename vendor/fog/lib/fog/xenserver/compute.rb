@@ -73,8 +73,9 @@ module Fog
 
         def default_template
           return nil if @defaults[:template].nil?
-          servers.all(:name_matches => @defaults[:template], :include_templates => true,
-                      :include_custom_templates => true ).first
+          (servers.custom_templates + servers.builtin_templates).find do |s|
+            (s.name == @defaults[:template]) or (s.uuid == @defaults[:template])
+          end
         end
         
         def default_network

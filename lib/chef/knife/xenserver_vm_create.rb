@@ -141,8 +141,7 @@ class Chef
           exit 1
         end
 
-        template = connection.servers.all(:include_templates => true,
-                                          :include_custom_templates => true).find do |s| 
+        template = connection.servers.templates.find do |s| 
           (s.name == config[:vm_template]) or (s.uuid == config[:vm_template])
         end
 

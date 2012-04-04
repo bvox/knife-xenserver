@@ -17,8 +17,7 @@ module Fog
           if template.kind_of? String
             template_string = template
             # try template by UUID 
-            template = servers.all(:include_templates => true,
-                                   :include_custom_templates => true).find { |s| s.uuid == template_string }
+            template = servers.templates.find { |s| s.uuid == template_string }
             if template.nil?
               # Try with the template name just in case
               template = servers.get get_vm_by_name(template_string)
