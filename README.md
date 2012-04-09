@@ -46,7 +46,7 @@ Create a VM from template and add two custom VIFs in networks 'Integration-VLAN'
    knife xenserver vm create --vm-template ed089e35-fb49-f555-4e20-9b7f3db8df2d \
                              --vm-name foobar --ssh-user root \
                              --ssh-password secret \
-                             --vm-networks 'Integration-VLAN,Another-VLNA' \
+                             --vm-networks 'Integration-VLAN,Another-VLAN' \
                              --mac-addresses 11:22:33:44:55:66
 
 List hypervisor networks

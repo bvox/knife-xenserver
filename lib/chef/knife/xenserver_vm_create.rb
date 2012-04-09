@@ -164,12 +164,17 @@ class Chef
         puts "#{ui.color("Creating VM #{config[:vm_name]}... ", :magenta)}"
         puts "#{ui.color("Using template #{template.name} [uuid: #{template.uuid}]... ", :magenta)}"
         
-        vm = connection.servers.create :name => config[:vm_name],
-                                       :template_name => config[:vm_template]
-        vm.reload
+        vm = connection.servers.new :name => config[:vm_name],
+                                    :template_name => config[:vm_template]
+        vm.save :auto_start => false
+        vm.vifs.each do |vif|
+          vif.destroy
+        end 
         if config[:vm_networks]
           create_nics(config[:vm_networks], config[:mac_addresses], vm)
         end
+        vm.start
+        vm.reload
 
         puts "#{ui.color("VM Name", :cyan)}: #{vm.name}"
         puts "#{ui.color("VM Memory", :cyan)}: #{vm.memory_static_max.to_i.bytes.to.megabytes.round} MB"
