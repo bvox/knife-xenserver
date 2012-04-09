@@ -1,6 +1,6 @@
 #
-# Author:: Sergio Rubio (<rubiojr@frameos.org>)
-# Copyright:: Copyright (c) 2011 Sergio Rubio
+# Author:: Sergio Rubio (<rubiojr@bvox.net>)
+# Copyright:: Copyright (c) 2012 BVox S.L.
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");

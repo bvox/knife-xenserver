@@ -3,8 +3,6 @@ module Fog
     class XenServer
       class Real
         
-        require 'fog/xenserver/parsers/get_vms'
-
         def get_vm_by_name(label)
           @connection.request({:parser => Fog::Parsers::XenServer::Base.new, :method => 'VM.get_by_name_label' }, label)
         end
@@ -28,19 +26,15 @@ module Fog
             raise "Invalid template"
           end
 
-          #FIXME: need to check that template exist actually
           raise "Template #{template_string} does not exist" if template.allowed_operations.nil?
           raise 'Clone Operation not Allowed' unless template.allowed_operations.include?('clone')
 
           # Clone the VM template
-          ref = @connection.request(
-            {:parser => Fog::Parsers::XenServer::Base.new, :method => 'VM.clone'}, 
-            template.reference, name_label
-          )
+          ref = clone_server name_label, template.reference
+          # Add additional NICs
           networks.each do |n|
             create_vif ref, n.reference
           end
-          #new_vm = servers.get get_vm_by_name( name_label )
           @connection.request({:parser => Fog::Parsers::XenServer::Base.new, :method => 'VM.provision'}, ref)
           start_vm( ref ) unless extra_args[:auto_start] == false
           

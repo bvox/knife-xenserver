@@ -12,7 +12,7 @@ module Fog
         def templates
           data = connection.get_records 'VM'
           data.delete_if do |vm|
-            !vm[:is_a_template] 
+            !vm[:is_a_template]
           end
           load(data)
         end

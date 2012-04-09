@@ -1,6 +1,6 @@
 #
-# Author:: Sergio Rubio (<rubiojr@frameos.org>)
-# Copyright:: Copyright (c) 2011 Sergio Rubio
+# Author:: Sergio Rubio (<rubiojr@bvox.net>)
+# Copyright:: Copyright (c) 2012 BVox S.L.
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,19 +29,24 @@ class Chef
       def run
         $stdout.sync = true
         vm_table = table do |t|
-          t.headings = %w{NAME MEMORY POWER_STATE GUEST_TOOLS NETWORKS}
+          t.headings = %w{NAME MEM POWER TOOLS NETWORKS IPs}
           connection.servers.each do |vm|
             if vm.tools_installed?
-              networks = []
+              ips = []
               vm.guest_metrics.networks.each do |k,v|
-                networks << v
+                ips << v
               end
-              networks = networks.join(",")
+              ips = ips.join(",\n")
             else
-              networks = "unknown"
+              ips = "unknown"
             end
+            networks = []
+            vm.vifs.each do |vif|
+              networks << vif.network.name
+            end
+            networks = networks.join(",\n")
             mem = vm.memory_static_max.to_i.bytes.to.megabytes.round
-            t << ["#{vm.name}\n  #{ui.color('uuid: ', :yellow)}#{vm.uuid}", mem, vm.power_state, vm.tools_installed?, networks]
+            t << ["#{vm.name}\n  #{ui.color('uuid: ', :yellow)}#{vm.uuid}", mem, vm.power_state, vm.tools_installed?, networks,ips]
           end
         end
         puts vm_table if connection.servers.size > 0

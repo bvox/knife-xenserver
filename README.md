@@ -35,6 +35,24 @@ Include built-in tempaltes too
                                   --xenserver-password secret \
                                   --include-builtin
 
+Create a VM from template ed089e35-fb49-f555-4e20-9b7f3db8df2d and bootstrap it using the 'root' user and password 'secret'
+
+   knife xenserver vm create --vm-template ed089e35-fb49-f555-4e20-9b7f3db8df2d \
+                             --vm-name foobar --ssh-user root \
+                             --ssh-password secret 
+
+Create a VM from template and add two custom VIFs in networks 'Integration-VLAN' and 'Another-VLAN', with MAC address 11:22:33:44:55:66 for the first VIF
+
+   knife xenserver vm create --vm-template ed089e35-fb49-f555-4e20-9b7f3db8df2d \
+                             --vm-name foobar --ssh-user root \
+                             --ssh-password secret \
+                             --vm-networks 'Integration-VLAN,Another-VLNA' \
+                             --mac-addresses 11:22:33:44:55:66
+
+List hypervisor networks
+
+   knife xenserver network list
+
 ## Sample .chef/knife.rb config
 
     knife[:xenserver_password] = "secret"
