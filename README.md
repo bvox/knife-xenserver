@@ -35,7 +35,7 @@ Include built-in tempaltes too
                                   --xenserver-password secret \
                                   --include-builtin
 
-Create a VM from template ed089e35-fb49-f555-4e20-9b7f3db8df2d and bootstrap it using the 'root' user and password 'secret'
+Create a VM from template ed089e35-fb49-f555-4e20-9b7f3db8df2d and bootstrap it using the 'root' user and password 'secret'. The VM is created without VIFs, inherited VIFs from template are removed by default (use --keep-template-networks to avoid that)
 
    knife xenserver vm create --vm-template ed089e35-fb49-f555-4e20-9b7f3db8df2d \
                              --vm-name foobar --ssh-user root \

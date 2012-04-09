@@ -103,6 +103,13 @@ class Chef
         :default => false,
         :proc => Proc.new { true }
       
+      option :keep_template_networks,
+        :long => "--keep-template-networks",
+        :description => "Do no remove template inherited networks (VIFs)",
+        :boolean => true,
+        :default => false,
+        :proc => Proc.new { true }
+      
       option :batch,
         :long => "--batch script.yml",
         :description => "Use a batch file to deploy multiple VMs",
@@ -167,9 +174,11 @@ class Chef
         vm = connection.servers.new :name => config[:vm_name],
                                     :template_name => config[:vm_template]
         vm.save :auto_start => false
+        if not config[:keep_template_networks]
         vm.vifs.each do |vif|
           vif.destroy
         end 
+        end
         if config[:vm_networks]
           create_nics(config[:vm_networks], config[:mac_addresses], vm)
         end
@@ -178,37 +187,37 @@ class Chef
 
         puts "#{ui.color("VM Name", :cyan)}: #{vm.name}"
         puts "#{ui.color("VM Memory", :cyan)}: #{vm.memory_static_max.to_i.bytes.to.megabytes.round} MB"
-        # wait for it to be ready to do stuff
-        print "\n#{ui.color("Waiting server... ", :magenta)}"
-        timeout = 180
-        found = connection.servers.all.find { |v| v.name == vm.name }
-        servers = connection.servers
-        loop do 
-          begin
-            vm.refresh
-            if not vm.guest_metrics.nil? and not vm.guest_metrics.networks.empty?
-              networks = []
-              vm.guest_metrics.networks.each do |k,v|
-                networks << v
-              end
-              networks = networks.join(",")
-              puts
-              puts "\n#{ui.color("Server IPs:", :cyan)} #{networks}"
-              break
-            end
-          rescue Fog::Errors::Error
-            print "\r#{ui.color('Waiting a valid IP', :magenta)}..." + "." * (100 - timeout)
-          end
-          sleep 1
-          timeout -= 1
-          if timeout == 0
-            puts
-            ui.error "Timeout trying to reach the VM. Couldn't find the IP address."
-            exit 1
-          end
-        end
 
         if !config[:skip_bootstrap]
+          # wait for it to be ready to do stuff
+          print "\n#{ui.color("Waiting server... ", :magenta)}"
+          timeout = 180
+          found = connection.servers.all.find { |v| v.name == vm.name }
+          servers = connection.servers
+          loop do 
+            begin
+              vm.refresh
+              if not vm.guest_metrics.nil? and not vm.guest_metrics.networks.empty?
+                networks = []
+                vm.guest_metrics.networks.each do |k,v|
+                  networks << v
+                end
+                networks = networks.join(",")
+                puts
+                puts "\n#{ui.color("Server IPs:", :cyan)} #{networks}"
+                break
+              end
+            rescue Fog::Errors::Error
+              print "\r#{ui.color('Waiting a valid IP', :magenta)}..." + "." * (100 - timeout)
+            end
+            sleep 1
+            timeout -= 1
+            if timeout == 0
+              puts
+              ui.error "Timeout trying to reach the VM. Couldn't find the IP address."
+              exit 1
+            end
+          end
           print "\n#{ui.color("Waiting for sshd... ", :magenta)}"
           vm.guest_metrics.networks.each do |k,v|
             print "\n#{ui.color("Trying to SSH to #{v}... ", :yellow)}"
