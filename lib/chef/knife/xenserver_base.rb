@@ -19,6 +19,7 @@
 require 'chef/knife'
 $: << File.dirname(__FILE__) + "/../../../vendor/fog/lib/"
 require 'fog'
+require 'colored'
 
 class Chef
   class Knife
@@ -56,7 +57,7 @@ class Chef
           username = config[:xenserver_username] || Chef::Config[:knife][:xenserver_username]
           password = config[:xenserver_password] || Chef::Config[:knife][:xenserver_password]
 
-          ui.info "#{ui.color("Connecting to XenServer host #{host}... ", :magenta)}"
+          ui.info "Connecting to XenServer host #{host.yellow}..."
           begin
             @connection = Fog::Compute.new({
               :provider => 'XenServer',

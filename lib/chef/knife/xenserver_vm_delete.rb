@@ -37,11 +37,11 @@ class Chef
           @name_args.each do |vm_name|
             if (vm_name == vm.name) or (vm_name == vm.uuid)
               if config[:force_delete] =~ /(no|NO|false|FALSE)/
-                confirm("Do you really want to delete this virtual machine '#{vm.name}'")
+                confirm("Do you really want to #{'delete'.bold.red} this virtual machine #{vm.name.bold.red}")
               end
               vm.destroy
               deleted << vm_name
-              ui.info("Deleted virtual machine #{vm.name} [uuid: #{vm.uuid}]")
+              ui.info("Deleted virtual machine #{vm.name.yellow} [uuid: #{vm.uuid}]")
             end
           end
         end

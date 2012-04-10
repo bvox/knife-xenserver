@@ -168,8 +168,8 @@ class Chef
           exit 1
         end
 
-        puts "#{ui.color("Creating VM #{config[:vm_name]}... ", :magenta)}"
-        puts "#{ui.color("Using template #{template.name} [uuid: #{template.uuid}]... ", :magenta)}"
+        puts "Creating VM #{config[:vm_name].yellow}..."
+        puts "Using template #{template.name.yellow} [uuid: #{template.uuid}]..."
         
         vm = connection.servers.new :name => config[:vm_name],
                                     :template_name => config[:vm_template]
