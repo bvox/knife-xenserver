@@ -44,15 +44,15 @@ class Chef
             templates += connection.servers.builtin_templates
           end
           templates.each do |vm|
-            if vm.tools_installed?
-              networks = []
-              vm.guest_metrics.networks.each do |k,v|
-                networks << v
+            networks = []
+            vm.vifs.each do |vif|
+              name = vif.network.name
+              if name.size > 20
+                name = name[0..16] + '...'
               end
-              networks = networks.join("\n")
-            else
-              networks = "unknown"
+              networks << name
             end
+            networks = networks.join("\n")
             mem = vm.memory_static_max.to_i.bytes.to.megabytes.round
             t << ["#{vm.name}\n  #{ui.color('uuid: ', :yellow)}#{vm.uuid}", mem, vm.tools_installed?, networks]
           end
