@@ -36,7 +36,7 @@ class Chef
               vm.guest_metrics.networks.each do |k,v|
                 ips << v
               end
-              ips = ips.join(",\n")
+              ips = ips.join("\n")
             else
               ips = "unknown"
             end
@@ -48,7 +48,7 @@ class Chef
               end
               networks << name
             end
-            networks = networks.join(",\n")
+            networks = networks.join("\n")
             mem = vm.memory_static_max.to_i.bytes.to.megabytes.round
             t << ["#{vm.uuid}\n  #{ui.color('name: ', :yellow)}#{vm.name.ljust(32)}", mem, vm.power_state, vm.tools_installed?, networks,ips]
           end

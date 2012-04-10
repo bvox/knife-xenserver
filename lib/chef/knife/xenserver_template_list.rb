@@ -49,7 +49,7 @@ class Chef
               vm.guest_metrics.networks.each do |k,v|
                 networks << v
               end
-              networks = networks.join(",")
+              networks = networks.join("\n")
             else
               networks = "unknown"
             end
