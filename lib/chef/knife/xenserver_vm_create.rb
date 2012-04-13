@@ -182,6 +182,7 @@ class Chef
         if config[:vm_networks]
           create_nics(config[:vm_networks], config[:mac_addresses], vm)
         end
+        vm.provision
         vm.start
         vm.reload
 
