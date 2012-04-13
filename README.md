@@ -1,3 +1,4 @@
+![BVox](http://bvox.net/images/logo-bvox-big.png)
 # knife-xenserver
 
 Provision virtual machines with Citrix XenServer and Opscode Chef.
