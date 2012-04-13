@@ -41,6 +41,7 @@ module Fog
       request :create_server
       request :create_vif
       request :create_vdi
+      request :create_vbd
       request :destroy_vif
       request :clone_server
       request :destroy_server
@@ -54,7 +55,9 @@ module Fog
       request :get_record
       request :get_records
       request :set_affinity
+      request :set_attribute
       request :reboot_server
+      request :provision_server
     
       class Real
         

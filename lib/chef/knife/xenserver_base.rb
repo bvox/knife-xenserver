@@ -56,7 +56,6 @@ class Chef
           host = config[:xenserver_host] || Chef::Config[:knife][:xenserver_host]
           username = config[:xenserver_username] || Chef::Config[:knife][:xenserver_username]
           password = config[:xenserver_password] || Chef::Config[:knife][:xenserver_password]
-
           ui.info "Connecting to XenServer host #{host.yellow}..."
           begin
             @connection = Fog::Compute.new({

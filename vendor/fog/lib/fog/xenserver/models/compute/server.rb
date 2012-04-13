@@ -12,7 +12,7 @@ module Fog
         
         attribute :uuid
         attribute :name,                 :aliases => :name_label
-        attribute :affinity
+        attribute :__affinity,           :aliases => :affinity
         attribute :allowed_operations
         attribute :consoles
         attribute :domarch
@@ -31,15 +31,24 @@ module Fog
         attribute :other_config
         attribute :power_state
         attribute :pv_args,              :aliases => :PV_args
+        attribute :pv_bootloader,        :aliases => :PV_bootloader
+        attribute :pv_bootloader_args,   :aliases => :PV_bootloader_args
+        attribute :pv_kernel,            :aliases => :PV_kernel
+        attribute :pv_ramdisk,           :aliases => :PV_ramdisk
+        attribute :pv_legacy_args,       :aliases => :PV_legacy_args
         attribute :__resident_on,        :aliases => :resident_on
         # Virtual Block Devices
         attribute :__vbds,               :aliases => :VBDs
         # Virtual CPUs
         attribute :vcpus_at_startup,     :aliases => :VCPUs_at_startup
         attribute :vcpus_max,            :aliases => :VCPUs_max
+        attribute :vcpus_params,         :aliases => :VCPUs_params
         # Virtual Interfaces (NIC)
         attribute :__vifs,               :aliases => :VIFs
         attribute :template_name
+        attribute :hvm_boot_policy,      :aliases => :HVM_boot_policy
+        attribute :hvm_boot_params,      :aliases => :HVM_boot_params
+        attribute :pci_bus,              :aliases => :PCI_bus
 
         def initialize(attributes={})
           super
@@ -47,6 +56,10 @@ module Fog
 
         def vbds
           __vbds.collect {|vbd| connection.vbds.get vbd }
+        end
+
+        def affinity
+          connection.hosts.get __affinity
         end
 
         def destroy
@@ -62,6 +75,14 @@ module Fog
           end
           connection.destroy_server( reference )
           true
+        end
+
+        def set_attribute(name, val)
+          data = connection.set_attribute( reference, name, val )
+          # Do not reload automatically for performance reasons
+          # We can set multiple attributes at the same time and
+          # then reload manually
+          #reload
         end
         
         def refresh
@@ -87,12 +108,9 @@ module Fog
         # This is not always present in XenServer VMs
         # Guest needs XenTools installed to report this AFAIK
         def guest_metrics
-          begin
-            rec = connection.get_record( __guest_metrics, 'VM_guest_metrics' )
-            Fog::Compute::XenServer::GuestMetrics.new(rec)
-          rescue Fog::XenServer::RequestFailed
-            nil
-          end
+          return nil unless __guest_metrics
+          rec = connection.get_record( __guest_metrics, 'VM_guest_metrics' )
+          Fog::Compute::XenServer::GuestMetrics.new(rec)
         end
 
         def tools_installed?
@@ -132,11 +150,18 @@ module Fog
           else
             auto_start = params[:auto_start] 
           end
-          attributes = connection.get_record(
-            connection.create_server( name, template_name, nets, :auto_start => auto_start),
-            'VM'
-          )
-          merge_attributes attributes
+          if template_name
+            attr = connection.get_record(
+              connection.create_server( name, template_name, nets, :auto_start => auto_start),
+              'VM'
+            )
+          else
+            attr = connection.get_record(
+              connection.create_server_raw(attributes),
+              'VM'
+            )
+          end
+          merge_attributes attr 
           true
         end
 
@@ -166,6 +191,10 @@ module Fog
 
         def clean_shutdown
           stop 'clean'
+        end
+
+        def provision
+          connection.provision_server reference
         end
 
         # def snapshot

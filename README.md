@@ -35,6 +35,17 @@ Include built-in tempaltes too
                                   --xenserver-password secret \
                                   --include-builtin
 
+Create a new template from a VHD file (PV by default, use --hvm otherwise) 
+
+    knife xenserver template create --vm-name ubuntu-precise-amd64 \
+                                    --vm-disk ubuntu-precise.vhd \
+                                    --vm-memory 512 \
+                                    --vm-networks 'Integration-VLAN' \
+                                    --storage-repository 'Local storage' \
+                                    --xenserver-password changeme \
+                                    --xenserver-host 10.0.0.2 
+
+
 Create a VM from template ed089e35-fb49-f555-4e20-9b7f3db8df2d and bootstrap it using the 'root' user and password 'secret'. The VM is created without VIFs, inherited VIFs from template are removed by default (use --keep-template-networks to avoid that)
 
    knife xenserver vm create --vm-template ed089e35-fb49-f555-4e20-9b7f3db8df2d \
