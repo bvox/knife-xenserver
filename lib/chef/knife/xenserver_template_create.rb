@@ -101,7 +101,7 @@ class Chef
           exit 1
         end
 
-        ui.info "Creating VM #{vm_name.yellow} in #{host.yellow}..."
+        ui.info "Creating VM #{vm_name.yellow} on #{host.yellow}..."
         
         # We will create the VDI in this SR
         sr = connection.storage_repositories.find { |sr| sr.name == config[:storage_repository] }
