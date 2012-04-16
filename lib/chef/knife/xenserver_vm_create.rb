@@ -175,9 +175,10 @@ class Chef
                                     :template_name => config[:vm_template]
         vm.save :auto_start => false
         if not config[:keep_template_networks]
-        vm.vifs.each do |vif|
-          vif.destroy
-        end 
+          vm.vifs.each do |vif|
+            vif.destroy
+          end 
+          vm.reload
         end
         if config[:vm_networks]
           create_nics(config[:vm_networks], config[:mac_addresses], vm)
