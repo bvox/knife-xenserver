@@ -33,6 +33,11 @@ module Fog
           __pbds.collect { |pbd| connection.pbds.get pbd }
         end
 
+        def scan
+          connection.scan_sr reference
+          reload
+        end
+
       end
       
     end

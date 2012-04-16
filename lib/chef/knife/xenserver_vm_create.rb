@@ -222,7 +222,7 @@ class Chef
           end
           print "\n#{ui.color("Waiting for sshd... ", :magenta)}"
           vm.guest_metrics.networks.each do |k,v|
-            print "\n#{ui.color("Trying to SSH to #{v}... ", :yellow)}"
+            print "\nTrying to #{'SSH'.yellow} to #{v.yellow}... "
             print(".") until tcp_test_ssh(v) do
               sleep @initial_sleep_delay ||= 10; puts(" done") 
               @ssh_ip = v

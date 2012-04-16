@@ -31,5 +31,6 @@ Gem::Specification.new do |s|
   s.add_dependency('colored')
   s.add_dependency('ruby-hmac')
   s.add_dependency('alchemist')
+  s.add_dependency('uuidtools')
   s.require_paths = ["lib"]
 end

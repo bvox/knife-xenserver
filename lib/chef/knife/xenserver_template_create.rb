@@ -18,6 +18,7 @@
 
 require 'chef/knife/xenserver_base'
 require 'net/scp'
+require 'uuidtools'
 
 class Chef
   class Knife
@@ -105,12 +106,33 @@ class Chef
         
         # We will create the VDI in this SR
         sr = connection.storage_repositories.find { |sr| sr.name == config[:storage_repository] }
+        # Upload and replace the VDI with our template
+        uuid = UUIDTools::UUID.random_create.to_s
+        dest = "/var/run/sr-mount/#{sr.uuid}/#{uuid}.vhd"
+        Net::SSH.start(host, user, :password => password) do |ssh|
+          puts "Uploading file #{File.basename(source).yellow}..." 
+          puts "Destination SR #{sr.name.yellow}"
+          ssh.scp.upload!(source, dest) do |ch, name, sent, total|
+            p = (sent.to_f * 100 / total.to_f).to_i.to_s
+            print "\rProgress: #{p.yellow.bold}% completed"
+          end
+        end
         
+        sr.scan
         # Create a ~8GB VDI in storage repository 'Local Storage'
-        vdi = connection.vdis.create :name => "#{vm_name}-disk1", 
-                               :storage_repository => sr,
-                               :description => "#{vm_name}-disk1",
-                               :virtual_size => '8589934592' # ~8GB in bytes
+        #vdi = connection.vdis.create :name => "#{vm_name}-disk1", 
+        #                       :storage_repository => sr,
+        #                       :description => "#{vm_name}-disk1",
+        #                       :virtual_size => '8589934592' # ~8GB in bytes
+
+        vdi = nil
+        sr.vdis.each do |v| 
+          if v.uuid == uuid
+            v.set_attribute 'name_label', "#{vm_name}-template"
+            vdi = v
+            break
+          end
+        end
         
         # Create the VM but do not start/provision it
         if config[:hvm]
@@ -142,18 +164,8 @@ class Chef
         end
         # Add the required VBD to the VM 
         connection.vbds.create :server => vm, :vdi => vdi
+        puts "Done."
         
-        # Upload and replace the VDI with our template
-        dest = "/var/run/sr-mount/#{sr.uuid}/#{vdi.uuid}.vhd"
-        Net::SSH.start(host, user, :password => password) do |ssh|
-          puts "Uploading file #{File.basename(source).yellow}..." 
-          puts "Destination SR #{sr.name.yellow}"
-          ssh.scp.upload!(source, dest) do |ch, name, sent, total|
-            p = (sent.to_f * 100 / total.to_f).to_i.to_s
-            print "\rProgress: #{p.yellow.bold}% completed"
-          end
-        end
-        puts "\ndone."
       end
       
       def create_nics(networks, macs, vm)
