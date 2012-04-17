@@ -52,6 +52,11 @@ class Chef
         :long => "--vm-memory AMOUNT",
         :description => "The memory limits of the Virtual Machine",
         :default => '512'
+      
+      option :vm_cpus,
+        :long => "--vm-cpus AMOUNT",
+        :description => "The VCPUs of the Virtual Machine",
+        :default => '1'
 
       option :bootstrap_version,
         :long => "--bootstrap-version VERSION",
@@ -190,6 +195,8 @@ class Chef
         end
         mem = (config[:vm_memory].to_i * 1024 * 1024).to_s
         vm.set_attribute 'memory_limits', mem, mem, mem, mem
+        vm.set_attribute 'VCPUs_max', config[:vm_cpus]
+        vm.set_attribute 'VCPUs_at_startup', config[:vm_cpus]
         vm.provision
         vm.start
         vm.reload

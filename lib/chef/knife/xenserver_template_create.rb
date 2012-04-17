@@ -101,6 +101,19 @@ class Chef
           ui.error "Invalid source disk #{source.red.bold}. I need a VHD file."
           exit 1
         end
+        
+        # Create the VM but do not start/provision it
+        if config[:hvm]
+          ui.info "HVM".yellow + " template selected"
+          pv_bootloader = 'eliloader'
+          hvm_boot_policy = 'BIOS order'
+          pv_args = ''
+        else
+          ui.info "PV".yellow + " template selected"
+          pv_bootloader = 'pygrub'
+          hvm_boot_policy = ''
+          pv_args = '-- console=hvc0'
+        end
 
         ui.info "Creating VM #{vm_name.yellow} on #{host.yellow}..."
         
@@ -134,18 +147,6 @@ class Chef
           end
         end
         
-        # Create the VM but do not start/provision it
-        if config[:hvm]
-          ui.info "HVM".yellow + " template selected"
-          pv_bootloader = 'eliloader'
-          hvm_boot_policy = 'BIOS order'
-          pv_args = ''
-        else
-          ui.info "PV".yellow + " template selected"
-          pv_bootloader = 'pygrub'
-          hvm_boot_policy = ''
-          pv_args = '-- console=hvc0'
-        end
         mem = (config[:vm_memory].to_i * 1024 * 1024).to_s
         vm = connection.servers.new :name => "#{vm_name}",
                               :affinity => connection.hosts.first,
@@ -164,7 +165,7 @@ class Chef
         end
         # Add the required VBD to the VM 
         connection.vbds.create :server => vm, :vdi => vdi
-        puts "Done."
+        puts "\nDone."
         
       end
       
