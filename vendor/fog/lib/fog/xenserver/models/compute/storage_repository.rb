@@ -24,6 +24,8 @@ module Fog
         attribute :__vdis,               :aliases => :VDIs
         attribute :physical_size
         attribute :physical_utilisation
+        attribute :sm_config
+        attribute :virtual_allocation
         
         def vdis
           __vdis.collect { |vdi| connection.vdis.get vdi }

@@ -47,6 +47,11 @@ class Chef
         :short => "-N NAME",
         :long => "--node-name NAME",
         :description => "The Chef node name for your new node"
+      
+      option :vm_memory,
+        :long => "--vm-memory AMOUNT",
+        :description => "The memory limits of the Virtual Machine",
+        :default => '512'
 
       option :bootstrap_version,
         :long => "--bootstrap-version VERSION",
@@ -183,6 +188,8 @@ class Chef
         if config[:vm_networks]
           create_nics(config[:vm_networks], config[:mac_addresses], vm)
         end
+        mem = (config[:vm_memory].to_i * 1024 * 1024).to_s
+        vm.set_attribute 'memory_limits', mem, mem, mem, mem
         vm.provision
         vm.start
         vm.reload
