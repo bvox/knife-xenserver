@@ -285,7 +285,7 @@ class Chef
           nics = net_arr
         end
         networks = connection.networks
-        highest_device = 0
+        highest_device = -1
         vm.vifs.each { |vif| highest_device = vif.device.to_i if vif.device.to_i > highest_device }
         nic_count = 0
         nics.each do |n|
