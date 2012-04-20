@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Knife-xenserver : Opscode Chef knife plug-in for XenServer" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Knife-xenserver</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/bvox/knife-xenserver">Fork Me on GitHub</a>
+
+          <h1 id="project_title">Knife-xenserver</h1>
+          <h2 id="project_tagline">Opscode Chef knife plug-in for XenServer</h2>
+
+          <section id="downloads">
+            <a class="zip_download_link" href="https://github.com/bvox/knife-xenserver/zipball/master">Download this project as a .zip file</a>
+            <a class="tar_download_link" href="https://github.com/bvox/knife-xenserver/tarball/master">Download this project as a tar.gz file</a>
+          </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <p><img src="http://bvox.net/images/logo-bvox-big.png" alt="BVox"></p>
+
+<h1>knife-xenserver</h1>
+
+<p>Provision virtual machines with Citrix XenServer and Opscode Chef.</p>
+
+<h2>Upgrading knife-xenserver</h2>
+
+<p>When upgrading knife-xenserver, it's very important to remove older knife-xenserver versions</p>
+
+<pre><code>gem update knife-xenserver
+gem clean knife-xenserver
+</code></pre>
+
+<h2>Usage</h2>
+
+<pre><code>knife xenserver --help
+</code></pre>
+
+<h2>Examples</h2>
+
+<p>List all the VMs</p>
+
+<pre><code>knife xenserver vm list --xenserver-host fooserver \
+                        --xenserver-username root \
+                        --xenserver-password secret
+</code></pre>
+
+<p>List custom templates</p>
+
+<pre><code>knife xenserver template list --xenserver-host fooserver \
+                              --xenserver-username root \
+                              --xenserver-password secret
+</code></pre>
+
+<p>Include built-in templates too</p>
+
+<pre><code>knife xenserver template list --xenserver-host fooserver \
+                              --xenserver-username root \https://github.com/bvox/knife-xenserver
+                              --xenserver-password secret \
+                              --include-builtin
+</code></pre>
+
+<p>Create a new template from a VHD file (PV by default, use --hvm otherwise) </p>
+
+<pre><code>knife xenserver template create --vm-name ubuntu-precise-amd64 \
+                                --vm-disk ubuntu-precise.vhd \
+                                --vm-memory 512 \
+                                --vm-networks 'Integration-VLAN' \
+                                --storage-repository 'Local storage' \
+                                --xenserver-password changeme \
+                                --xenserver-host 10.0.0.2 
+</code></pre>
+
+<p>Create a VM from template ed089e35-fb49-f555-4e20-9b7f3db8df2d and bootstrap it using the 'root' user and password 'secret'. The VM is created without VIFs, inherited VIFs from template are removed by default (use --keep-template-networks to avoid that)</p>
+
+<pre><code>knife xenserver vm create --vm-template ed089e35-fb49-f555-4e20-9b7f3db8df2d \
+                          --vm-name foobar --ssh-user root \
+                          --ssh-password secret 
+</code></pre>
+
+<p>Create a VM from template and add two custom VIFs in networks 'Integration-VLAN' and 'Another-VLAN', with MAC address 11:22:33:44:55:66 for the first VIF</p>
+
+<pre><code>knife xenserver vm create --vm-template ed089e35-fb49-f555-4e20-9b7f3db8df2d \
+                          --vm-name foobar --ssh-user root \
+                          --ssh-password secret \
+                          --vm-networks 'Integration-VLAN,Another-VLAN' \
+                          --mac-addresses 11:22:33:44:55:66
+</code></pre>
+
+<p>List hypervisor networks</p>
+
+<pre><code>knife xenserver network list
+</code></pre>
+
+<h2>Sample .chef/knife.rb config</h2>
+
+<pre><code>knife[:xenserver_password] = "secret"
+knife[:xenserver_username] = "root"
+knife[:xenserver_host]     = "xenserver-real"
+</code></pre>
+
+<h1>Building the rubygem</h1>
+
+<pre><code>gem build knife-xenserver.gemspec
+</code></pre>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Knife-xenserver maintained by <a href="https://github.com/bvox">bvox</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
