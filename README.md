@@ -29,7 +29,7 @@ List custom templates
                                   --xenserver-username root \
                                   --xenserver-password secret
 
-Include built-in tempaltes too
+Include built-in templates too
 
     knife xenserver template list --xenserver-host fooserver \
                                   --xenserver-username root \
