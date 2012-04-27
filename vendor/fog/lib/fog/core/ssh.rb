@@ -1,3 +1,5 @@
+require 'delegate'
+
 module Fog
   module SSH
 
@@ -42,6 +44,7 @@ module Fog
 
         @address  = address
         @username = username
+        @debug    = options.delete :debug
         @options  = { :paranoid => false }.merge(options)
       end
 
@@ -51,7 +54,7 @@ module Fog
         begin
           Net::SSH.start(@address, @username, @options) do |ssh|
             commands.each do |command|
-              result = Result.new(command)
+              result = Result.new(command, @debug)
               ssh.open_channel do |ssh_channel|
                 ssh_channel.request_pty
                 ssh_channel.exec(command) do |channel, success|
@@ -91,6 +94,19 @@ module Fog
 
     end
 
+    class DebugString < SimpleDelegator
+
+      def initialize(string='')
+        super
+      end
+
+      def <<(add_me)
+        puts add_me
+        super
+      end
+
+    end
+
     class Result
 
       attr_accessor :command, :stderr, :stdout, :status
@@ -108,10 +124,10 @@ module Fog
         Formatador.display_line(stderr.split("\r\n"))
       end
 
-      def initialize(command)
+      def initialize(command, debug=false)
         @command = command
-        @stderr = ''
-        @stdout = ''
+        @stderr = debug ? DebugString.new : ''
+        @stdout = debug ? DebugString.new : ''
       end
 
     end

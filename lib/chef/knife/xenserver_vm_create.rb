@@ -43,6 +43,10 @@ class Chef
         :long => "--vm-name NAME",
         :description => "The Virtual Machine name"
       
+      option :vm_tags,
+        :long => "--vm-tags tag1[,tag2..]",
+        :description => "Comma separated list of tags"
+      
       option :chef_node_name,
         :short => "-N NAME",
         :long => "--node-name NAME",
@@ -197,6 +201,9 @@ class Chef
         vm.set_attribute 'memory_limits', mem, mem, mem, mem
         vm.set_attribute 'VCPUs_max', config[:vm_cpus]
         vm.set_attribute 'VCPUs_at_startup', config[:vm_cpus]
+        if config[:vm_tags]
+          vm.set_attribute 'tags', config[:vm_tags].split(',')
+        end
         vm.provision
         vm.start
         vm.reload

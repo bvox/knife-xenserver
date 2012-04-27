@@ -38,6 +38,10 @@ class Chef
         :long => "--vm-name NAME",
         :description => "The template name"
       
+      option :vm_tags,
+        :long => "--vm-tags tag1[,tag2..]",
+        :description => "Comma separated list of tags"
+      
       option :vm_disk,
         :long => "--vm-disk DISK",
         :description => "The disk file to use"
@@ -159,6 +163,9 @@ class Chef
                               :memory_dynamic_max => mem,
                               :memory_dynamic_min => mem
         vm.save
+        if config[:vm_tags]
+          vm.set_attribute 'tags', config[:vm_tags].split(',')
+        end
 
         if config[:vm_networks]
           create_nics(config[:vm_networks], config[:mac_addresses], vm)
