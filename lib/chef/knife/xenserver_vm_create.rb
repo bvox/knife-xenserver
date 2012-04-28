@@ -141,19 +141,20 @@ class Chef
         :default => nil
 
       option :vm_ip,
-        :long => '--vm-ip',
+        :long => '--vm-ip IP',
         :description => 'IP address to set in xenstore'
 
       option :vm_gateway,
-        :long => '--vm-gateway',
+        :long => '--vm-gateway GATEWAY',
         :description => 'Gateway address to set in xenstore'
 
       option :vm_netmask,
-        :long => '--vm-netmask',
-        :description => 'Netmask to set in xenstore'
+        :long => '--vm-netmask NETMASK',
+        :description => 'Netmask to set in xenstore',
+        :default => '255.255.255.0'
 
       option :vm_dns,
-        :long => '--vm-dns',
+        :long => '--vm-dns NAMESERVER',
         :description => 'DNS servers to set in xenstore'
 
       def tcp_test_ssh(hostname)
@@ -219,10 +220,10 @@ class Chef
         vm.set_attribute 'VCPUs_at_startup', config[:vm_cpus]
 
         # network configuration through xenstore
-        vm.set_attribute('xenstore_data:vm_data/ip', config[:vm_ip]) if config[:vm_ip]
-        vm.set_attribute('xenstore_data:vm_data/gw', config[:vm_gateway]) if config[:vm_gateway]
-        vm.set_attribute('xenstore_data:vm_data/nm', config[:vm_netmask]) if config[:vm_netmask]
-        vm.set_attribute('xenstore_data:vm_data/ns', config[:vm_dns]) if config[:vm_dns]
+        vm.add_attribute('to_xenstore_data', 'vm_data/ip', config[:vm_ip]) if config[:vm_ip]
+        vm.add_attribute('to_xenstore_data', 'vm_data/gw', config[:vm_gateway]) if config[:vm_gateway]
+        vm.add_attribute('to_xenstore_data', 'vm_data/nm', config[:vm_netmask]) if config[:vm_netmask]
+        vm.add_attribute('to_xenstore_data', 'vm_data/ns', config[:vm_dns]) if config[:vm_dns]
 
         if config[:vm_tags]
           vm.set_attribute 'tags', config[:vm_tags].split(',')

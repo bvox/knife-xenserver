@@ -84,6 +84,14 @@ module Fog
           # then reload manually
           #reload
         end
+
+        def add_attribute(name, *val)
+          data = connection.add_attribute( 'VM', reference, name, *val )
+          # Do not reload automatically for performance reasons
+          # We can set multiple attributes at the same time and
+          # then reload manually
+          #reload
+        end
         
         def refresh
           data = connection.get_record( reference, 'VM' )

@@ -56,6 +56,7 @@ module Fog
       request :get_records
       request :set_affinity
       request :set_attribute
+      request :add_attribute
       request :reboot_server
       request :provision_server
       request :scan_sr
