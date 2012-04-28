@@ -220,10 +220,10 @@ class Chef
         vm.set_attribute 'VCPUs_at_startup', config[:vm_cpus]
 
         # network configuration through xenstore
-        vm.add_attribute('to_xenstore_data', 'vm_data/ip', config[:vm_ip]) if config[:vm_ip]
-        vm.add_attribute('to_xenstore_data', 'vm_data/gw', config[:vm_gateway]) if config[:vm_gateway]
-        vm.add_attribute('to_xenstore_data', 'vm_data/nm', config[:vm_netmask]) if config[:vm_netmask]
-        vm.add_attribute('to_xenstore_data', 'vm_data/ns', config[:vm_dns]) if config[:vm_dns]
+        vm.add_attribute('to_xenstore_data', 'vm-data/ip', config[:vm_ip]) if config[:vm_ip]
+        vm.add_attribute('to_xenstore_data', 'vm-data/gw', config[:vm_gateway]) if config[:vm_gateway]
+        vm.add_attribute('to_xenstore_data', 'vm-data/nm', config[:vm_netmask]) if config[:vm_netmask]
+        vm.add_attribute('to_xenstore_data', 'vm-data/ns', config[:vm_dns]) if config[:vm_dns]
 
         if config[:vm_tags]
           vm.set_attribute 'tags', config[:vm_tags].split(',')
