@@ -140,6 +140,22 @@ class Chef
         :description => "Mac address list",
         :default => nil
 
+      option :vm_ip,
+        :long => '--vm-ip',
+        :description => 'IP address to set in xenstore'
+
+      option :vm_gateway,
+        :long => '--vm-gateway',
+        :description => 'Gateway address to set in xenstore'
+
+      option :vm_netmask,
+        :long => '--vm-netmask',
+        :description => 'Netmask to set in xenstore'
+
+      option :vm_dns,
+        :long => '--vm-dns',
+        :description => 'DNS servers to set in xenstore'
+
       def tcp_test_ssh(hostname)
         tcp_socket = TCPSocket.new(hostname, 22)
         readable = IO.select([tcp_socket], nil, nil, 5)
@@ -201,6 +217,13 @@ class Chef
         vm.set_attribute 'memory_limits', mem, mem, mem, mem
         vm.set_attribute 'VCPUs_max', config[:vm_cpus]
         vm.set_attribute 'VCPUs_at_startup', config[:vm_cpus]
+
+        # network configuration through xenstore
+        vm.set_attribute('xenstore_data:vm_data/ip', config[:vm_ip]) if config[:vm_ip]
+        vm.set_attribute('xenstore_data:vm_data/gw', config[:vm_gateway]) if config[:vm_gateway]
+        vm.set_attribute('xenstore_data:vm_data/nm', config[:vm_netmask]) if config[:vm_netmask]
+        vm.set_attribute('xenstore_data:vm_data/ns', config[:vm_dns]) if config[:vm_dns]
+
         if config[:vm_tags]
           vm.set_attribute 'tags', config[:vm_tags].split(',')
         end
