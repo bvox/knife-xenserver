@@ -55,7 +55,7 @@ class Chef
       option :vm_memory,
         :long => "--vm-memory AMOUNT",
         :description => "The memory limits of the Virtual Machine",
-        :default => '512'
+        :default => '1024'
       
       option :vm_cpus,
         :long => "--vm-cpus AMOUNT",
@@ -156,6 +156,10 @@ class Chef
         :long => '--vm-dns NAMESERVER',
         :description => 'DNS servers to set in xenstore'
 
+      option :vm_domain,
+        :long => '--vm-domain DOMAIN',
+        :description => 'DOMAIN of host to set in xenstore'
+
       def tcp_test_ssh(hostname)
         tcp_socket = TCPSocket.new(hostname, 22)
         readable = IO.select([tcp_socket], nil, nil, 5)
@@ -198,6 +202,7 @@ class Chef
 
         config[:vm_netmask] ||= Chef::Config[:knife][:xenserver_default_vm_netmask] || '255.255.255.0'
         config[:vm_dns] ||= Chef::Config[:knife][:xenserver_default_vm_dns]
+        config[:vm_domain] ||= Chef::Config[:knife][:xenserver_default_vm_domain]
 
         template = connection.servers.templates.find do |s| 
           (s.name == config[:vm_template]) or (s.uuid == config[:vm_template])
@@ -233,6 +238,7 @@ class Chef
         vm.add_attribute('to_xenstore_data', 'vm-data/gw', config[:vm_gateway]) if config[:vm_gateway]
         vm.add_attribute('to_xenstore_data', 'vm-data/nm', config[:vm_netmask]) if config[:vm_netmask]
         vm.add_attribute('to_xenstore_data', 'vm-data/ns', config[:vm_dns]) if config[:vm_dns]
+	vm.add_attribute('to_xenstore_data', 'vm-data/dm', config[:vm_domain]) if config[:vm_domain]
 
         if config[:vm_tags]
           vm.set_attribute 'tags', config[:vm_tags].split(',')
