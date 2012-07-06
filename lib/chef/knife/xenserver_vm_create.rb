@@ -55,7 +55,7 @@ class Chef
       option :vm_memory,
         :long => "--vm-memory AMOUNT",
         :description => "The memory limits of the Virtual Machine",
-        :default => '1024'
+        :default => '512'
       
       option :vm_cpus,
         :long => "--vm-cpus AMOUNT",
@@ -238,7 +238,7 @@ class Chef
         vm.add_attribute('to_xenstore_data', 'vm-data/gw', config[:vm_gateway]) if config[:vm_gateway]
         vm.add_attribute('to_xenstore_data', 'vm-data/nm', config[:vm_netmask]) if config[:vm_netmask]
         vm.add_attribute('to_xenstore_data', 'vm-data/ns', config[:vm_dns]) if config[:vm_dns]
-	vm.add_attribute('to_xenstore_data', 'vm-data/dm', config[:vm_domain]) if config[:vm_domain]
+        vm.add_attribute('to_xenstore_data', 'vm-data/dm', config[:vm_domain]) if config[:vm_domain]
 
         if config[:vm_tags]
           vm.set_attribute 'tags', config[:vm_tags].split(',')
