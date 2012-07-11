@@ -68,6 +68,8 @@ Create a VM from template and supply ip/host/domain configuration. Requires inst
                                 --vm-ip 172.20.1.25 --vm-netmask 255.255.0.0 --vm-gateway 172.20.0.1 --vm-dns 172.20.0.3 \
                                 --vm-domain my-domain.local
 
+The domU/guest will also need xe-guest-utilities installed. You can then list xenstore attributes running 'xenstore-ls vm-data' inside domU.
+
 List hypervisor networks
 
     knife xenserver network list
