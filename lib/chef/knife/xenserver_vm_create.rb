@@ -140,6 +140,26 @@ class Chef
         :description => "Mac address list",
         :default => nil
 
+      option :vm_ip,
+        :long => '--vm-ip IP',
+        :description => 'IP address to set in xenstore'
+
+      option :vm_gateway,
+        :long => '--vm-gateway GATEWAY',
+        :description => 'Gateway address to set in xenstore'
+
+      option :vm_netmask,
+        :long => '--vm-netmask NETMASK',
+        :description => 'Netmask to set in xenstore'
+
+      option :vm_dns,
+        :long => '--vm-dns NAMESERVER',
+        :description => 'DNS servers to set in xenstore'
+
+      option :vm_domain,
+        :long => '--vm-domain DOMAIN',
+        :description => 'DOMAIN of host to set in xenstore'
+
       def tcp_test_ssh(hostname)
         tcp_socket = TCPSocket.new(hostname, 22)
         readable = IO.select([tcp_socket], nil, nil, 5)
@@ -173,6 +193,17 @@ class Chef
           exit 1
         end
 
+        unless config[:vm_gateway]
+          if config[:vm_ip]
+            last_octet = Chef::Config[:knife][:xenserver_default_vm_gateway_last_octet] || 1
+            config[:vm_gateway] = config[:vm_ip].gsub(/\.\d+$/, ".#{last_octet}")
+          end
+        end
+
+        config[:vm_netmask] ||= Chef::Config[:knife][:xenserver_default_vm_netmask] || '255.255.255.0'
+        config[:vm_dns] ||= Chef::Config[:knife][:xenserver_default_vm_dns]
+        config[:vm_domain] ||= Chef::Config[:knife][:xenserver_default_vm_domain]
+
         template = connection.servers.templates.find do |s| 
           (s.name == config[:vm_template]) or (s.uuid == config[:vm_template])
         end
@@ -201,6 +232,14 @@ class Chef
         vm.set_attribute 'memory_limits', mem, mem, mem, mem
         vm.set_attribute 'VCPUs_max', config[:vm_cpus]
         vm.set_attribute 'VCPUs_at_startup', config[:vm_cpus]
+
+        # network configuration through xenstore
+        vm.add_attribute('to_xenstore_data', 'vm-data/ip', config[:vm_ip]) if config[:vm_ip]
+        vm.add_attribute('to_xenstore_data', 'vm-data/gw', config[:vm_gateway]) if config[:vm_gateway]
+        vm.add_attribute('to_xenstore_data', 'vm-data/nm', config[:vm_netmask]) if config[:vm_netmask]
+        vm.add_attribute('to_xenstore_data', 'vm-data/ns', config[:vm_dns]) if config[:vm_dns]
+        vm.add_attribute('to_xenstore_data', 'vm-data/dm', config[:vm_domain]) if config[:vm_domain]
+
         if config[:vm_tags]
           vm.set_attribute 'tags', config[:vm_tags].split(',')
         end
@@ -217,38 +256,47 @@ class Chef
           timeout = 180
           found = connection.servers.all.find { |v| v.name == vm.name }
           servers = connection.servers
-          loop do 
-            begin
-              vm.refresh
-              if not vm.guest_metrics.nil? and not vm.guest_metrics.networks.empty?
-                networks = []
-                vm.guest_metrics.networks.each do |k,v|
-                  networks << v
+          if config[:vm_ip]
+            vm.refresh
+            print "\nTrying to #{'SSH'.yellow} to #{config[:vm_ip].yellow}... "
+            print(".") until tcp_test_ssh(config[:vm_ip]) do
+              sleep @initial_sleep_delay ||= 10; puts(" done")
+              @ssh_ip = config[:vm_ip]
+            end
+          else
+            loop do
+              begin
+                vm.refresh
+                if not vm.guest_metrics.nil? and not vm.guest_metrics.networks.empty?
+                  networks = []
+                  vm.guest_metrics.networks.each do |k,v|
+                    networks << v
+                  end
+                  networks = networks.join(",")
+                  puts
+                  puts "\n#{ui.color("Server IPs:", :cyan)} #{networks}"
+                  break
                 end
-                networks = networks.join(",")
-                puts
-                puts "\n#{ui.color("Server IPs:", :cyan)} #{networks}"
-                break
+              rescue Fog::Errors::Error
+                print "\r#{ui.color('Waiting a valid IP', :magenta)}..." + "." * (100 - timeout)
               end
-            rescue Fog::Errors::Error
-              print "\r#{ui.color('Waiting a valid IP', :magenta)}..." + "." * (100 - timeout)
+              sleep 1
+              timeout -= 1
+              if timeout == 0
+                puts
+                ui.error "Timeout trying to reach the VM. Couldn't find the IP address."
+                exit 1
+              end
             end
-            sleep 1
-            timeout -= 1
-            if timeout == 0
-              puts
-              ui.error "Timeout trying to reach the VM. Couldn't find the IP address."
-              exit 1
+            print "\n#{ui.color("Waiting for sshd... ", :magenta)}"
+            vm.guest_metrics.networks.each do |k,v|
+              print "\nTrying to #{'SSH'.yellow} to #{v.yellow}... "
+              print(".") until tcp_test_ssh(v) do
+                sleep @initial_sleep_delay ||= 10; puts(" done")
+                @ssh_ip = v
+              end
+              break if @ssh_ip
             end
-          end
-          print "\n#{ui.color("Waiting for sshd... ", :magenta)}"
-          vm.guest_metrics.networks.each do |k,v|
-            print "\nTrying to #{'SSH'.yellow} to #{v.yellow}... "
-            print(".") until tcp_test_ssh(v) do
-              sleep @initial_sleep_delay ||= 10; puts(" done") 
-              @ssh_ip = v
-            end
-            break if @ssh_ip
           end
 
           bootstrap_for_node(vm).run 
