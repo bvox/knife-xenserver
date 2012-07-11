@@ -200,7 +200,7 @@ class Chef
           end
         end
 
-        config[:vm_netmask] ||= Chef::Config[:knife][:xenserver_default_vm_netmask] || '255.255.255.0'
+        config[:vm_netmask] ||= Chef::Config[:knife][:xenserver_default_vm_netmask]
         config[:vm_dns] ||= Chef::Config[:knife][:xenserver_default_vm_dns]
         config[:vm_domain] ||= Chef::Config[:knife][:xenserver_default_vm_domain]
 
@@ -234,11 +234,16 @@ class Chef
         vm.set_attribute 'VCPUs_at_startup', config[:vm_cpus]
 
         # network configuration through xenstore
-        vm.add_attribute('to_xenstore_data', 'vm-data/ip', config[:vm_ip]) if config[:vm_ip]
-        vm.add_attribute('to_xenstore_data', 'vm-data/gw', config[:vm_gateway]) if config[:vm_gateway]
-        vm.add_attribute('to_xenstore_data', 'vm-data/nm', config[:vm_netmask]) if config[:vm_netmask]
-        vm.add_attribute('to_xenstore_data', 'vm-data/ns', config[:vm_dns]) if config[:vm_dns]
-        vm.add_attribute('to_xenstore_data', 'vm-data/dm', config[:vm_domain]) if config[:vm_domain]
+        attrs = {}
+        (attrs['vm-data/ip'] = config[:vm_ip]) if config[:vm_ip]
+        (attrs['vm-data/gw'] = config[:vm_gateway]) if config[:vm_gateway]
+        (attrs['vm-data/netmask'] = config[:vm_netmask]) if config[:vm_netmask]
+        (attrs['vm-data/dns'] = config[:vm_dns]) if config[:vm_dns]
+        (attrs['vm-data/dm'] = config[:vm_domain]) if config[:vm_domain]
+        if !attrs.empty?
+          puts "Adding attributes to xenstore..."
+          vm.set_attribute 'xenstore_data', attrs
+        end
 
         if config[:vm_tags]
           vm.set_attribute 'tags', config[:vm_tags].split(',')
