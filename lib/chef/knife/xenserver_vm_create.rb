@@ -103,12 +103,11 @@ class Chef
         :long => "--identity-file IDENTITY_FILE",
         :description => "The SSH identity file used for authentication"
       
-      option :no_host_key_verify,
-        :long => "--no-host-key-verify",
+      option :host_key_verify,
+        :long => "--[no-]host-key-verify",
         :description => "Disable host key verification",
         :boolean => true,
-        :default => false,
-        :proc => Proc.new { true }
+        :default => true
       
       option :skip_bootstrap,
         :long => "--skip-bootstrap",
@@ -330,7 +329,7 @@ class Chef
         bootstrap.config[:use_sudo] = true unless config[:ssh_user] == 'root'
         bootstrap.config[:template_file] = locate_config_value(:template_file)
         bootstrap.config[:environment] = config[:environment]
-        bootstrap.config[:no_host_key_verify] = config[:no_host_key_verify]
+        bootstrap.config[:host_key_verify] = config[:host_key_verify]
         bootstrap.config[:ssh_password] = config[:ssh_password]
         bootstrap
       end
