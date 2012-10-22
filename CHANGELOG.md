@@ -1,3 +1,18 @@
+# 1.2 - UNRELEASED
+
+* Greatly improved 'vm list' command
+
+  - Table columns can now be disabled in output:
+  
+      knife xenserver vm list --no-uuid \
+                              --no-power \
+                              --no-networks \
+                              --no-tools 
+  
+  - Print CSV output with --csv instead of a regular ASCII table
+    
+    knife xenserver vm list --csv
+
 # 1.1 - 2012/10/21
 
 * Fixed --no-host-key-verify vm create flag
