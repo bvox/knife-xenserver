@@ -13,6 +13,12 @@
     
     knife xenserver vm list --csv
 
+* Added --match option to 'vm list'
+
+  Print only VMs whose name matches the given regex:
+
+    knife xenserver vm list --match '^my-vm.*?devel.bvox.net$'
+
 # 1.1 - 2012/10/21
 
 * Fixed --no-host-key-verify vm create flag
