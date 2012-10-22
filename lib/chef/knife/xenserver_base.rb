@@ -70,7 +70,7 @@ class Chef
           rescue Fog::XenServer::InvalidLogin => e
             ui.error "Error connecting to the hypervisor: #{host}" 
             ui.error "Check the username and password."
-            exit
+            exit 1
           rescue => e
             ui.error "Error connecting to the hypervisor" 
             ui.error "#{e.class} #{e.message}" 
