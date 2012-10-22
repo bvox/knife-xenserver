@@ -67,7 +67,11 @@ class Chef
         :description => "Print/Hide VM Power State",
         :boolean => true,
         :default => true
-
+      
+      option :match,
+        :long => "--match REGEX",
+        :description => "Print only VMs whose name matches REGEX"
+      
       def gen_headings
         headings = %w{NAME}
         if config[:mem]
@@ -93,6 +97,9 @@ class Chef
         # [uuid, name, [ips], [networks], mem, power, tools]
         table = []
         connection.servers.each do |vm|
+          if config[:match] and vm.name !~ /#{config[:match]}/
+            next
+          end
           row = [vm.uuid, vm.name] 
           if vm.tools_installed?
             ips = []
