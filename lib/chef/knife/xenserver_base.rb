@@ -54,6 +54,11 @@ class Chef
       def connection
         if not @connection
           host = config[:xenserver_host] || Chef::Config[:knife][:xenserver_host]
+          if host.nil?
+            ui.error "XenServer host not defined." 
+            ui.error "Use --xenserver-host or add it to the knife config file." 
+            exit 1
+          end
           username = config[:xenserver_username] || Chef::Config[:knife][:xenserver_username]
           password = config[:xenserver_password] || Chef::Config[:knife][:xenserver_password]
           ui.info "Connecting to XenServer host #{host.yellow}..."
