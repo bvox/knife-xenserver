@@ -1,4 +1,4 @@
-# 1.2 - UNRELEASED
+# 1.2 - Thu 25 Oct 2012 
 
 * Greatly improved 'vm list' command
 
