@@ -19,6 +19,9 @@
 
     knife xenserver vm list --match '^my-vm.*?devel.bvox.net$'
 
+* FIX: Set exit status to 1 when XenServer auth fails
+* FIX: Print error if XenServer host is not defined
+
 # 1.1 - 2012/10/21
 
 * Fixed --no-host-key-verify vm create flag
