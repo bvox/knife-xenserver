@@ -61,7 +61,8 @@ Create a VM from template and add two custom VIFs in networks 'Integration-VLAN'
                               --vm-networks 'Integration-VLAN,Another-VLAN' \
                               --mac-addresses 11:22:33:44:55:66
 
-Create a VM from template and supply ip/host/domain configuration. Requires installation of xe-automater scripts (https://github.com/adamlau/xenserver-automater)
+Create a VM from template and supply ip/host/domain configuration. Requires installation of xe-automater scripts
+(https://github.com/krobertson/xenserver-automater)
 
     knife xenserver vm create   --vm-template my-template -x root --keep-template-networks \
                                 --vm-name my-hostname \
