@@ -1,3 +1,12 @@
+# 1.2.1 - Mon 12 Nov 2012
+
+* Added --match flag to the 'vm delete' command.
+
+  If --match is used, every VM matching VM_NAME will be deleted
+
+* Deprecate --force-delete option in 'vm delete' since --yes should
+  be used to confirm (force).
+
 # 1.2 - Thu 25 Oct 2012 
 
 * Greatly improved 'vm list' command
