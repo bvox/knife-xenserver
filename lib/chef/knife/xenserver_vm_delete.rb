@@ -30,23 +30,41 @@ class Chef
         :long => "--force-delete NO",
         :default => 'no',
         :description => "Do not confirm VM deletion when yes"
+      
+      option :match,
+        :long => "--match",
+        :description => "Delete VMs matching VM_NAME (regex)",
+        :boolean => true
 
       def run
+        if config[:force_delete] =~ /y|yes/i
+          ui.warn "--force-delete is deprecated."
+          ui.warn "Use --yes to confirm deletion."
+          config[:yes] = true 
+        end
         deleted = []
         connection.servers.each do |vm|
+          to_delete = []
           @name_args.each do |vm_name|
-            if (vm_name == vm.name) or (vm_name == vm.uuid)
-              if config[:force_delete] =~ /(no|NO|false|FALSE)/
-                confirm("Do you really want to #{'delete'.bold.red} this virtual machine #{vm.name.bold.red}")
+            if config[:match]
+              if vm.name =~ /#{vm_name}/
+                to_delete << vm
               end
-              vm.destroy
-              deleted << vm_name
-              ui.info("#{'Deleted'.yellow} virtual machine #{vm.name.yellow} [uuid: #{vm.uuid}]")
+            else
+              if (vm_name == vm.name) or (vm_name == vm.uuid)
+                to_delete << vm
+              end
             end
+          end
+          to_delete.each do |vm|
+            confirm("Do you really want to #{'delete'.bold.red} this virtual machine #{vm.name.bold.red}")
+            vm.destroy
+            deleted << vm.name 
+            ui.info("#{'Deleted'.yellow} virtual machine #{vm.name.yellow} [uuid: #{vm.uuid}]")
           end
         end
         @name_args.each do |vm_name|
-          ui.warn "Virtual Machine #{vm_name} not found" if not deleted.include?(vm_name)
+          ui.warn "Virtual Machine#{'(s) matching' if config[:match]} '#{vm_name}' not found" if deleted.size == 0
         end
       end
 
