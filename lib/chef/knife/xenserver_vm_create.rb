@@ -236,8 +236,8 @@ class Chef
         attrs = {}
         (attrs['vm-data/ip'] = config[:vm_ip]) if config[:vm_ip]
         (attrs['vm-data/gw'] = config[:vm_gateway]) if config[:vm_gateway]
-        (attrs['vm-data/netmask'] = config[:vm_netmask]) if config[:vm_netmask]
-        (attrs['vm-data/dns'] = config[:vm_dns]) if config[:vm_dns]
+        (attrs['vm-data/nm'] = config[:vm_netmask]) if config[:vm_netmask]
+        (attrs['vm-data/ns'] = config[:vm_dns]) if config[:vm_dns]
         (attrs['vm-data/dm'] = config[:vm_domain]) if config[:vm_domain]
         if !attrs.empty?
           puts "Adding attributes to xenstore..."
