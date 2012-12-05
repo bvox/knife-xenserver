@@ -1,5 +1,7 @@
 # 1.2.1 - Mon 12 Nov 2012
 
+* Maks3w patches for xenserver-automated related stuff
+
 * Added --match flag to the 'vm delete' command.
 
   If --match is used, every VM matching VM_NAME will be deleted
