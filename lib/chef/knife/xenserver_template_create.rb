@@ -56,7 +56,7 @@ class Chef
         :default => '512'
       
       option :storage_repository,
-        :long => "--storage-repository",
+        :long => "--storage-repository SR",
         :description => "The storage repository to use",
         :default => 'Local storage'
       

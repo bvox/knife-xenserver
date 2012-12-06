@@ -1,3 +1,7 @@
+# 1.2.2 - Thu 06 Dec 2012 
+
+* Fixed --storage-repository parameter in 'template create' command
+
 # 1.2.1 - Mon 12 Nov 2012
 
 * Maks3w patches for xenserver-automated related stuff
