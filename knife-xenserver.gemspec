@@ -22,7 +22,6 @@ Gem::Specification.new do |s|
   ## Fog 1.3.1 deps. We'll need to remove them
   # when using fog upstream
   s.add_dependency('colored')
-  s.add_dependency('alchemist')
   s.add_dependency('uuidtools')
   s.require_paths = ["lib"]
 end
