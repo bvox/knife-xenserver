@@ -27,7 +27,6 @@ class Chef
 
       deps do
         require 'readline'
-        require 'alchemist'
         require 'chef/json_compat'
         require 'chef/knife/bootstrap'
         Chef::Knife::Bootstrap.load_deps
@@ -252,7 +251,7 @@ class Chef
         vm.reload
 
         puts "#{ui.color("VM Name", :cyan)}: #{vm.name}"
-        puts "#{ui.color("VM Memory", :cyan)}: #{vm.memory_static_max.to_i.bytes.to.megabytes.round} MB"
+        puts "#{ui.color("VM Memory", :cyan)}: #{bytes_to_megabytes(vm.memory_static_max)} MB"
 
         if !config[:skip_bootstrap]
           # wait for it to be ready to do stuff
