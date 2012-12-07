@@ -1,3 +1,8 @@
+# 1.2.3 - Fri 07 Dec 2012
+
+* Drop alchemist gem, fixing some compat issues with some ruby 1.9
+  implementations. See #6.
+
 # 1.2.2 - Thu 06 Dec 2012 
 
 * Fixed --storage-repository parameter in 'template create' command
