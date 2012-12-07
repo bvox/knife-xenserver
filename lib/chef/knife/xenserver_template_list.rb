@@ -53,7 +53,7 @@ class Chef
               networks << name
             end
             networks = networks.join("\n")
-            mem = vm.memory_static_max.to_i.bytes.to.megabytes.round
+            mem = bytes_to_megabytes(vm.memory_static_max)
             t << ["#{vm.name}\n  #{ui.color('uuid: ', :yellow)}#{vm.uuid}", mem, vm.tools_installed?, networks]
           end
         end

@@ -33,7 +33,6 @@ class Chef
             require 'readline'
             require 'chef/json_compat'
             require 'terminal-table/import'
-            require 'alchemist'
           end
 
           option :xenserver_password,
@@ -90,6 +89,10 @@ class Chef
       def locate_config_value(key)
         key = key.to_sym
         Chef::Config[:knife][key] || config[key]
+      end
+
+      def bytes_to_megabytes(bytes)
+        (bytes.to_i / (1024.0 * 1024.0)).round
       end
 
     end

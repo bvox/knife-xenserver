@@ -119,7 +119,7 @@ class Chef
             networks << name
           end
           row << networks
-          row << vm.memory_static_max.to_i.bytes.to.megabytes.round
+          row << bytes_to_megabytes(vm.memory_static_max)
           row << vm.power_state
           row << vm.tools_installed?
           table << row
