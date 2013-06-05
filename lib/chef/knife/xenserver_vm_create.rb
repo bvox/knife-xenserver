@@ -158,6 +158,10 @@ class Chef
         :long => '--vm-domain DOMAIN',
         :description => 'DOMAIN of host to set in xenstore'
 
+      option :extra_vdis,
+        :long => '--extra-vdis "SR name":size1[,"SR NAME":size2,..]',
+        :description => 'Create and attach additional VDIs (size in MB)'
+
       def tcp_test_ssh(hostname)
         tcp_socket = TCPSocket.new(hostname, 22)
         readable = IO.select([tcp_socket], nil, nil, 5)
@@ -246,7 +250,10 @@ class Chef
         if config[:vm_tags]
           vm.set_attribute 'tags', config[:vm_tags].split(',')
         end
+
         vm.provision
+        # Create additional VDIs (virtual disks)
+        create_extra_vdis(vm)
         vm.start
         vm.reload
 
@@ -331,6 +338,55 @@ class Chef
         bootstrap.config[:host_key_verify] = config[:host_key_verify]
         bootstrap.config[:ssh_password] = config[:ssh_password]
         bootstrap
+      end
+
+      def create_extra_vdis(vm)
+        # Return if no extra VDIs were specified
+        return unless config[:extra_vdis]
+        count = 0
+
+        vdis = config[:extra_vdis].split(',')
+        vdis.each do |vdi|
+          count += 1
+          sr, size = vdi.split(':')
+          unless size =~ /^\d+$/
+            ui.error "Invalid VDI size. Not numeric."
+            exit 1
+          end
+          # size in bytes
+          bsize = size.to_i * 1024 * 1024
+
+          # If the storage repository has been omitted,
+          # use the default SR from the first pool, othewise
+          # find the SR required
+          if sr.nil?
+            sr = connection.pools.first.default_sr 
+            ui.warn "No storage repository defined for extra VDI #{count}."
+            ui.warn "Using default SR from Pool: #{sr.name}"
+          else
+            found = connection.storage_repositories.find { |s| s.name == sr }
+            unless found
+              ui.error "Storage Repository #{sr} not available"
+              exit 1
+            end
+            sr = found
+          end
+          
+          # Name of the VDI
+          name = "#{config[:vm_name]}-extra-vdi-#{count}"
+
+          puts "Creating extra VDI (#{size} MB, #{name}, #{sr.name || 'Default SR'})"
+          vdi = connection.vdis.create :name => name,
+                                       :storage_repository => sr,
+                                       :description => name,
+                                       :virtual_size => bsize.to_s
+
+          # Attach the VBD
+          connection.vbds.create :server => vm, 
+                                 :vdi => vdi,
+                                 :userdevice => count.to_s,
+                                 :bootable => false
+        end
       end
       
       def create_nics(networks, macs, vm)
