@@ -1,6 +1,6 @@
 module Knife
   module XenServer
-    VERSION = "1.2.3"
+    VERSION = "1.3.0"
     MAJOR, MINOR, TINY = VERSION.split('.')
   end
 end
