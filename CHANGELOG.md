@@ -1,3 +1,8 @@
+# 1.3.1 - Thy 06 Jun 2013 
+
+* Fixing some --extra-vdis parsing issues
+* Fix nasty bug while trying to roll back destroying the created VM
+
 # 1.3.0 - Thy 06 Jun 2013 
 
 * New **sr list** command to list storage repositories.

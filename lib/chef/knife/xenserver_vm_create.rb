@@ -182,17 +182,6 @@ class Chef
       end
 
       def run
-
-        # Capture exceptions and prettify output
-        at_exit do
-          e = $!
-          if e and @created_vm
-            # Something went wrong, try to destory the VM
-            ui.info "Cleaning up the mess..."
-            @created_vm.destroy rescue nil
-          end
-        end
-
         $stdout.sync = true
 
         unless config[:vm_template]
@@ -355,10 +344,16 @@ class Chef
         return unless config[:extra_vdis]
         count = 0
 
-        vdis = config[:extra_vdis].split(',')
+        vdis = config[:extra_vdis].strip.chomp.split(',')
         vdis.each do |vdi|
           count += 1
-          sr, size = vdi.split(':')
+          # if options is "Storage Repository":size
+          if vdi =~ /.*:.*/
+            sr, size = vdi.split(':')
+          else #only size was specified
+            sr = nil
+            size = vdi
+          end
           unless size =~ /^\d+$/
             raise "Invalid VDI size. Not numeric."
           end
