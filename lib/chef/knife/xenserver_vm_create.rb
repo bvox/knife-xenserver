@@ -182,17 +182,26 @@ class Chef
       end
 
       def run
+
+        # Capture exceptions and prettify output
+        at_exit do
+          e = $!
+          if e and @created_vm
+            # Something went wrong, try to destory the VM
+            ui.info "Cleaning up the mess..."
+            @created_vm.destroy rescue nil
+          end
+        end
+
         $stdout.sync = true
 
         unless config[:vm_template]
-          ui.error("You have not provided a valid template name. (--vm-template)")
-          exit 1
+          raise "You have not provided a valid template name. (--vm-template)"
         end
         
         vm_name = config[:vm_name]
         if not vm_name
-          ui.error("Invalid Virtual Machine name (--vm-name)")
-          exit 1
+          raise "Invalid Virtual Machine name (--vm-name)"
         end
 
         unless config[:vm_gateway]
@@ -211,8 +220,7 @@ class Chef
         end
 
         if template.nil?
-          ui.error "Template #{config[:vm_template]} not found."
-          exit 1
+          raise "Template #{config[:vm_template]} not found."
         end
 
         puts "Creating VM #{config[:vm_name].yellow}..."
@@ -221,6 +229,9 @@ class Chef
         vm = connection.servers.new :name => config[:vm_name],
                                     :template_name => config[:vm_template]
         vm.save :auto_start => false
+        # Useful for the global exception handler
+        @created_vm = vm
+
         if not config[:keep_template_networks]
           vm.vifs.each do |vif|
             vif.destroy
@@ -294,8 +305,7 @@ class Chef
               timeout -= 1
               if timeout == 0
                 puts
-                ui.error "Timeout trying to reach the VM. Couldn't find the IP address."
-                exit 1
+                raise "Timeout trying to reach the VM. Couldn't find the IP address."
               end
             end
             print "\n#{ui.color("Waiting for sshd... ", :magenta)}"
@@ -350,8 +360,7 @@ class Chef
           count += 1
           sr, size = vdi.split(':')
           unless size =~ /^\d+$/
-            ui.error "Invalid VDI size. Not numeric."
-            exit 1
+            raise "Invalid VDI size. Not numeric."
           end
           # size in bytes
           bsize = size.to_i * 1024 * 1024
@@ -366,8 +375,7 @@ class Chef
           else
             found = connection.storage_repositories.find { |s| s.name == sr }
             unless found
-              ui.error "Storage Repository #{sr} not available"
-              exit 1
+              raise "Storage Repository #{sr} not available"
             end
             sr = found
           end
@@ -381,11 +389,18 @@ class Chef
                                        :description => name,
                                        :virtual_size => bsize.to_s
 
-          # Attach the VBD
-          connection.vbds.create :server => vm, 
-                                 :vdi => vdi,
-                                 :userdevice => count.to_s,
-                                 :bootable => false
+          begin
+            # Attach the VBD
+            connection.vbds.create :server => vm, 
+                                   :vdi => vdi,
+                                   :userdevice => count.to_s,
+                                   :bootable => false
+          rescue => e
+            ui.error "Could not attach the VBD to the server"
+            # Try to destroy the VDI
+            vdi.destroy rescue nil
+            raise e
+          end
         end
       end
       
@@ -405,8 +420,7 @@ class Chef
         nics.each do |n|
           net = networks.find { |net| net.name == n[:network] }
           if net.nil?
-            ui.error "Network #{n[:network]} not found"
-            exit 1
+            raise "Network #{n[:network]} not found"
           end
           nic_count += 1
           c = {
