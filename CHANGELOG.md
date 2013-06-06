@@ -1,3 +1,12 @@
+# 1.3.0 - Thy 06 Jun 2013 
+
+* New **sr list** command to list storage repositories.
+* Experimental **sr create** command to create a Storage Repository.
+* The **vm create** command now supports --extra-vdis option to
+  create additional VDIs and attach them to the VM.
+* New **host list** command: currently lists UUID only.
+
+
 # 1.2.3 - Fri 07 Dec 2012
 
 * Drop alchemist gem, fixing some compat issues with some ruby 1.9
