@@ -1,3 +1,7 @@
+# 1.3.2 - 18 jun 2013 
+
+* Fix --sr-type option parsing for 'sr list' command. Thanks to @elvin159.
+
 # 1.3.1 - Thy 06 Jun 2013 
 
 * Fixing some --extra-vdis parsing issues
