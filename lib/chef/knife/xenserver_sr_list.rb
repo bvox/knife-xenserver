@@ -26,7 +26,7 @@ class Chef
       banner "knife xenserver sr list (options)"
       
       option :sr_type,
-        :long => "--sr-types",
+        :long => "--sr-types type1[,type2...]",
         :description => "List only the types specified (comma separated types)",
         :default => 'ext,lvm'
       
