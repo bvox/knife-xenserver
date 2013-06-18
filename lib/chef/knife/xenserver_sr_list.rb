@@ -55,7 +55,7 @@ class Chef
               utilisation = sr.physical_utilisation
             else
               if sr.physical_size.to_i > 0
-                utilisation = (sr.physical_utilisation.to_i * 100)/sr.physical_size.to_f * 100
+                utilisation = (sr.physical_utilisation.to_i * 100)/sr.physical_size.to_f
                 utilisation = "%.2f%" % utilisation
               else
                 utilisation = "100%"
