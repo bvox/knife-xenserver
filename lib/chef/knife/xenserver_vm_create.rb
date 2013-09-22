@@ -169,6 +169,11 @@ class Chef
         :long => '--extra-vdis "SR name":size1[,"SR NAME":size2,..]',
         :description => 'Create and attach additional VDIs (size in MB)'
 
+      option :environment,
+        :short => '-E ENV',
+        :long => '--environment ENV',
+        :description => 'Sets the chef environment to add the vm to'
+
       def tcp_test_ssh(hostname)
         tcp_socket = TCPSocket.new(hostname, 22)
         readable = IO.select([tcp_socket], nil, nil, 5)
